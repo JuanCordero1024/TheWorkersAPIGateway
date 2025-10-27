@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: the-workers-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # ----------------------------------------------------
+        # RUTA A: tráfico real hacia el microservicio de roles
+        # ----------------------------------------------------
+        - id: role_user_management
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/role/**
+
+        # ----------------------------------------------------
+        # RUTA B: exposición del JSON OpenAPI del microservicio
+        # ----------------------------------------------------
+        - id: role_docs_spec
+          uri: http://localhost:8081
+          predicates:
+            # La Gateway expondrá el JSON en /v3/api-docs/roles-api
+            - Path=/v3/api-docs/roles-api
+          filters:
+            # Reescribimos la petición hacia la ruta que el microservicio expone:
+            - RewritePath=/v3/api-docs/roles-api, /v3/api-docs
+
+# Configuración Springdoc en la Gateway (agregación)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html#
+    disable-swagger-default-url: true
+
+  groups:
+    - name: roles-api
+      url: /v3/api-docs/roles-api
