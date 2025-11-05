@@ -12,28 +12,12 @@ spring:
         # RUTA A: tráfico real hacia el microservicio de roles
         # ----------------------------------------------------
         - id: role_user_management
-          uri: http://localhost:8081
+          uri: http://localhost:8082
           predicates:
             - Path=/api/role/**
 
-        # ----------------------------------------------------
-        # RUTA B: exposición del JSON OpenAPI del microservicio
-        # ----------------------------------------------------
-        - id: role_docs_spec
+        - id: user_management
           uri: http://localhost:8081
           predicates:
-            # La Gateway expondrá el JSON en /v3/api-docs/roles-api
-            - Path=/v3/api-docs/roles-api
-          filters:
-            # Reescribimos la petición hacia la ruta que el microservicio expone:
-            - RewritePath=/v3/api-docs/roles-api, /v3/api-docs
+            - Path=/api/user/**
 
-# Configuración Springdoc en la Gateway (agregación)
-springdoc:
-  swagger-ui:
-    path: /swagger-ui/index.html#
-    disable-swagger-default-url: true
-
-  groups:
-    - name: roles-api
-      url: /v3/api-docs/roles-api
