@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+jwt:
+  secret-key: 3ba0f446898b9d9cba6f92ea5f230ff06b8d0a7889070f88ff2b92cf51fde1bd
+  expiration-ms: 172800000
+
 spring:
   application:
     name: the-workers-gateway
@@ -11,13 +15,19 @@ spring:
         # ----------------------------------------------------
         # RUTA A: tráfico real hacia el microservicio de roles
         # ----------------------------------------------------
+        - id: auth_management
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/auth/**
+
         - id: role_user_management
           uri: http://localhost:8082
           predicates:
             - Path=/api/role/**
+          filters:
+            - JWTAuthenticationFilter
 
         - id: user_management
           uri: http://localhost:8081
           predicates:
             - Path=/api/user/**
-
