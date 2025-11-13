@@ -2,8 +2,10 @@ server:
   port: 8080
 
 jwt:
-  secret-key: 3ba0f446898b9d9cba6f92ea5f230ff06b8d0a7889070f88ff2b92cf51fde1bd
+  secret-key: uaobUg2LDENICut8ZxXjVpUL6ob+9+J1oFje1qn6EZi6D+CB2WV6q02AVlCzdxpNNrEKqjDo0nLeVcoaLPu39A==
   expiration-ms: 172800000
+
+backend-ecc-public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKvAS0kuUMeVZYJWhgRA8zLYlHe+/8ccp3SJRH5OP0NS4dBAwPIfSMLFai1Cr5u4MHhcu4mm+Yh8XrOQrD+h73A==
 
 spring:
   application:
@@ -12,22 +14,28 @@ spring:
   cloud:
     gateway:
       routes:
-        # ----------------------------------------------------
-        # RUTA A: tráfico real hacia el microservicio de roles
-        # ----------------------------------------------------
-        - id: auth_management
+        - id: user_verify_credentials
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/user/verify-credentials
+
+        - id: auth_public_login
           uri: http://localhost:8083
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/login
 
         - id: role_user_management
           uri: http://localhost:8082
           predicates:
             - Path=/api/role/**
           filters:
-            - JWTAuthenticationFilter
+            - JWTAuthentication
+            - HybridEccEncryption
 
         - id: user_management
           uri: http://localhost:8081
           predicates:
             - Path=/api/user/**
+          filters:
+            - JWTAuthentication
+            - HybridEccEncryption
