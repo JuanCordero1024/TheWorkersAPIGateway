@@ -2,10 +2,11 @@ server:
   port: 8080
 
 jwt:
-  secret-key: uaobUg2LDENICut8ZxXjVpUL6ob+9+J1oFje1qn6EZi6D+CB2WV6q02AVlCzdxpNNrEKqjDo0nLeVcoaLPu39A==
+  secret-key: {TU-SECRET-KEY-JWT}
   expiration-ms: 172800000
 
-backend-ecc-public-key: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEKvAS0kuUMeVZYJWhgRA8zLYlHe+/8ccp3SJRH5OP0NS4dBAwPIfSMLFai1Cr5u4MHhcu4mm+Yh8XrOQrD+h73A==
+backend-ecc-public-key: {TU-SECRET-KEY-ECC-PUBLICA}
+backend-ecc-private-key: {TU-SECRET-KEY-ECC-PRIVADA}
 
 spring:
   application:
@@ -19,11 +20,17 @@ spring:
           predicates:
             - Path=/api/user/verify-credentials
 
+        - id: user_set_ecc_token
+          uri: http://localhost:8081
+          predicates:
+              - Path=/api/user/setEccToken/**
+          filters:
+              - JWTAuthentication
+
         - id: auth_public_login
           uri: http://localhost:8083
           predicates:
             - Path=/api/auth/login
-
         - id: role_user_management
           uri: http://localhost:8082
           predicates:
@@ -32,10 +39,20 @@ spring:
             - JWTAuthentication
             - HybridEccEncryption
 
+        # RUTA DE USUARIOS (REGISTRO DE CLAVE)
         - id: user_management
           uri: http://localhost:8081
           predicates:
             - Path=/api/user/**
           filters:
             - JWTAuthentication
+            - HybridEccEncryption
+
+        - id: payment_service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/user/payment
+          filters:
+            - JWTAuthentication
+            - HybridEccDecryption
             - HybridEccEncryption

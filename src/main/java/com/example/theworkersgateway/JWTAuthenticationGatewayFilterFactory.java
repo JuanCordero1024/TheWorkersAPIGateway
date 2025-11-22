@@ -11,6 +11,8 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
@@ -42,8 +44,7 @@ public class JWTAuthenticationGatewayFilterFactory extends AbstractGatewayFilter
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 log.warn("Token JWT no encontrado o formato incorrecto");
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
 
             String token = authHeader.substring(7);
@@ -57,29 +58,45 @@ public class JWTAuthenticationGatewayFilterFactory extends AbstractGatewayFilter
 
                 log.info("Token válido para usuario: {}", claims.getSubject());
 
+                // 1. Extrae el claim "ecc_key" del JWT
+                String clientEccKey = claims.get("ecc_key", String.class);
+
+                // 2. Valida que el claim exista
+                if (clientEccKey == null || clientEccKey.isEmpty()) {
+                    log.error("Token JWT válido pero no contiene el claim 'ecc_key'.");
+                    return onError(exchange, HttpStatus.BAD_REQUEST); // Malo, el token está malformado
+                }
+
+                // 3. Pasa la clave al siguiente filtro (al contexto del 'exchange')
+                exchange.getAttributes().put("clientEccKey", clientEccKey);
+                log.info("Clave ECC del cliente adjuntada al contexto.");
+
+                // --- FIN DEL PASO DOS ---
+
                 return chain.filter(exchange);
 
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                log.error("Token expirado", e);
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                log.error("Token expirado: ", e);
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
 
             } catch (io.jsonwebtoken.security.SignatureException e) {
-                log.error("Firma del token inválida", e);
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                log.error("Firma del token inválida: ", e);
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
 
             } catch (io.jsonwebtoken.MalformedJwtException e) {
-                log.error("Token malformado", e);
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                log.error("Token malformado: ", e);
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
 
             } catch (Exception e) {
-                log.error("Error desconocido al validar el token", e);
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                log.error("Error desconocido al validar el token: ", e);
+                return onError(exchange, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         };
+    }
+
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus httpStatus) {
+        exchange.getResponse().setStatusCode(httpStatus);
+        return exchange.getResponse().setComplete();
     }
 
     public static class Config {}

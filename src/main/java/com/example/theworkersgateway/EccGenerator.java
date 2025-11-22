@@ -11,7 +11,7 @@ public class EccGenerator {
             Security.addProvider(new BouncyCastleProvider());
 
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC", "BC");
-            ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime256v1");
+            ECGenParameterSpec ecSpec = new ECGenParameterSpec("secp256k1");
             keyGen.initialize(ecSpec, new SecureRandom());
 
             KeyPair keyPair = keyGen.generateKeyPair();
