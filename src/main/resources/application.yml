@@ -46,7 +46,7 @@ spring:
           predicates:
             - Path=/api/user/**
           filters:
-           - JWTAuthentication
+           #- JWTAuthentication
 
         - id: file_services
           uri: http://${SPRING_FILES_SERVICE}
