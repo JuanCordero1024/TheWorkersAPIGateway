@@ -16,24 +16,24 @@ spring:
     gateway:
       routes:
         - id: user_verify_credentials
-          uri: https://${SPRING_USER_SERVICE}
+          uri: http://${SPRING_USER_SERVICE}
           predicates:
             - Path=/api/user/verify-credentials
 
         - id: user_set_ecc_token
-          uri: https://${SPRING_USER_SERVICE}
+          uri: http://${SPRING_USER_SERVICE}
           predicates:
             - Path=/api/user/setEccToken/**
           filters:
             - JWTAuthentication
 
         - id: auth_public_login
-          uri: https://${SPRING_AUTH_SERVICE}
+          uri: http://${SPRING_AUTH_SERVICE}
           predicates:
             - Path=/api/auth/login
 
         - id: role_user_management
-          uri: https://${SPRING_ROLE_SERVICE}
+          uri: http://${SPRING_ROLE_SERVICE}
           predicates:
             - Path=/api/role/**
           filters:
@@ -42,14 +42,14 @@ spring:
 
         # RUTA DE USUARIOS (REGISTRO DE CLAVE)
         - id: user_management
-          uri: https://${SPRING_USER_SERVICE}
+          uri: http://${SPRING_USER_SERVICE}
           predicates:
             - Path=/api/user/**
           filters:
            #- JWTAuthentication
 
         - id: file_services
-          uri: https://${SPRING_FILES_SERVICE}
+          uri: http://${SPRING_FILES_SERVICE}
           predicates:
             - Path=/api/file/**
           filters:
