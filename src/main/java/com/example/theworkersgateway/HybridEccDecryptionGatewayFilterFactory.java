@@ -90,9 +90,9 @@ public class HybridEccDecryptionGatewayFilterFactory
                 return Mono.just(decryptedBody);
 
             } catch (Exception e) {
-                log.error("Error durante el descifrado híbrido: ", e);
+                log.error("❌ Error durante el descifrado híbrido", e);
                 // Falla la petición si no se puede descifrar
-                return Mono.error(new RuntimeException("No se pudo descifrar la petición: ", e));
+                return Mono.error(new RuntimeException("No se pudo descifrar la petición", e));
             }
         }
     }

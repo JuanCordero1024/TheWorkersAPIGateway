@@ -58,21 +58,6 @@ public class JWTAuthenticationGatewayFilterFactory extends AbstractGatewayFilter
 
                 log.info("Token válido para usuario: {}", claims.getSubject());
 
-                // 1. Extrae el claim "ecc_key" del JWT
-                String clientEccKey = claims.get("ecc_key", String.class);
-
-                // 2. Valida que el claim exista
-                if (clientEccKey == null || clientEccKey.isEmpty()) {
-                    log.error("Token JWT válido pero no contiene el claim 'ecc_key'.");
-                    return onError(exchange, HttpStatus.BAD_REQUEST); // Malo, el token está malformado
-                }
-
-                // 3. Pasa la clave al siguiente filtro (al contexto del 'exchange')
-                exchange.getAttributes().put("clientEccKey", clientEccKey);
-                log.info("Clave ECC del cliente adjuntada al contexto.");
-
-                // --- FIN DEL PASO DOS ---
-
                 return chain.filter(exchange);
 
             } catch (io.jsonwebtoken.ExpiredJwtException e) {

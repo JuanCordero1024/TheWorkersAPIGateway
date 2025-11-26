@@ -2,11 +2,11 @@ server:
   port: 8080
 
 jwt:
-  secret-key: {TU-SECRET-KEY-JWT}
-  expiration-ms: 172800000
+  secret-key: ${SPRING_JWT_KEY}
+  expiration-ms: ${SPRING_JWT_EXPIRATION}
 
-backend-ecc-public-key: {TU-SECRET-KEY-ECC-PUBLICA}
-backend-ecc-private-key: {TU-SECRET-KEY-ECC-PRIVADA}
+backend-ecc-public-key: ${SPRING_ECC_PUBLIC_KEY}
+backend-ecc-private-key: ${SPRING_ECC_PRIVATE_KEY}
 
 spring:
   application:
@@ -16,43 +16,41 @@ spring:
     gateway:
       routes:
         - id: user_verify_credentials
-          uri: http://localhost:8081
+          uri: http://${SPRING_USER_SERVICE:localhost:8081}
           predicates:
             - Path=/api/user/verify-credentials
 
         - id: user_set_ecc_token
-          uri: http://localhost:8081
+          uri: http://${SPRING_USER_SERVICE:localhost:8081}
           predicates:
-              - Path=/api/user/setEccToken/**
+            - Path=/api/user/setEccToken/**
           filters:
-              - JWTAuthentication
+            - JWTAuthentication
 
         - id: auth_public_login
-          uri: http://localhost:8083
+          uri: http://${SPRING_AUTH_SERVICE:localhost:8083}
           predicates:
             - Path=/api/auth/login
+
         - id: role_user_management
-          uri: http://localhost:8082
+          uri: http://${SPRING_ROLE_SERVICE:localhost:8082}
           predicates:
             - Path=/api/role/**
           filters:
             - JWTAuthentication
-            - HybridEccEncryption
+
 
         # RUTA DE USUARIOS (REGISTRO DE CLAVE)
         - id: user_management
-          uri: http://localhost:8081
+          uri: http://${SPRING_USER_SERVICE:localhost:8081}
           predicates:
             - Path=/api/user/**
           filters:
-            - JWTAuthentication
-            - HybridEccEncryption
+           - JWTAuthentication
 
-        - id: payment_service
-          uri: http://localhost:8081
+        - id: file_services
+          uri: http://${SPRING_FILES_SERVICE:localhost:8084}
           predicates:
-            - Path=/api/user/payment
+            - Path=/api/file/**
           filters:
             - JWTAuthentication
-            - HybridEccDecryption
-            - HybridEccEncryption
