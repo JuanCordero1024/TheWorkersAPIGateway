@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class LocalRateLimitFilter extends AbstractGatewayFilterFactory<LocalRateLimitFilter.Config> {
+public class LocalRateLimitGatewayFilterFactory extends AbstractGatewayFilterFactory<LocalRateLimitGatewayFilterFactory.Config> {
 
     private final Map<String, RequestData> requestCounts = new ConcurrentHashMap<>();
 
-    public LocalRateLimitFilter() {
+    public LocalRateLimitGatewayFilterFactory() {
         super(Config.class);
     }
 
