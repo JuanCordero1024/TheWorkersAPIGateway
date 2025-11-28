@@ -41,10 +41,6 @@ spring:
             - Path=/api/role/**
           filters:
             - JWTAuthentication
-            - name: LocalRateLimit
-              args:
-                maxRequests: 5
-                durationInMs: 60000
 
         # RUTA DE USUARIOS (REGISTRO DE CLAVE)
         - id: user_management
@@ -54,9 +50,6 @@ spring:
           filters:
             - JWTAuthentication
             - name: LocalRateLimit
-              args:
-                maxRequests: 5
-                durationInMs: 60000
 
         - id: file_services
           uri: http://${SPRING_FILES_SERVICE}
@@ -64,7 +57,3 @@ spring:
             - Path=/api/file/**
           filters:
             - JWTAuthentication
-            - name: LocalRateLimit
-              args:
-                maxRequests: 2
-                durationInMs: 60000
