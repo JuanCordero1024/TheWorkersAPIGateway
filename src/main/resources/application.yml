@@ -19,18 +19,21 @@ spring:
           uri: http://${SPRING_USER_SERVICE}
           predicates:
             - Path=/api/user/verify-credentials
-
-        - id: user_set_ecc_token
-          uri: http://${SPRING_USER_SERVICE}
-          predicates:
-            - Path=/api/user/setEccToken/**
           filters:
-            - JWTAuthentication
+            - name: LocalRateLimit
+              args:
+                maxRequests: 5
+                durationInMs: 60000
 
         - id: auth_public_login
           uri: http://${SPRING_AUTH_SERVICE}
           predicates:
             - Path=/api/auth/login
+          filters:
+            - name: LocalRateLimit
+              args:
+                maxRequests: 5
+                durationInMs: 60000
 
         - id: role_user_management
           uri: http://${SPRING_ROLE_SERVICE}
@@ -38,7 +41,10 @@ spring:
             - Path=/api/role/**
           filters:
             - JWTAuthentication
-
+            - name: LocalRateLimit
+              args:
+                maxRequests: 5
+                durationInMs: 60000
 
         # RUTA DE USUARIOS (REGISTRO DE CLAVE)
         - id: user_management
@@ -46,7 +52,11 @@ spring:
           predicates:
             - Path=/api/user/**
           filters:
-           - JWTAuthentication
+            - JWTAuthentication
+            - name: LocalRateLimit
+              args:
+                maxRequests: 5
+                durationInMs: 60000
 
         - id: file_services
           uri: http://${SPRING_FILES_SERVICE}
@@ -54,3 +64,7 @@ spring:
             - Path=/api/file/**
           filters:
             - JWTAuthentication
+            - name: LocalRateLimit
+              args:
+                maxRequests: 2
+                durationInMs: 60000
