@@ -49,7 +49,6 @@ spring:
             - Path=/api/user/**
           filters:
             - JWTAuthentication
-            - name: LocalRateLimit
 
         - id: file_services
           uri: http://${SPRING_FILES_SERVICE}
